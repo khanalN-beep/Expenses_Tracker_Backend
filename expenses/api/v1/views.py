@@ -8,7 +8,7 @@ from expenses.api.v1.serializers import MonthlyBudgetSerializer, CategorySeriali
     MonthlySummarySerializer
 from expenses.api.v1.services import calculate_monthly_summary
 from expenses.models import MonthlyBudget, Category, Expense
-
+# import calendar
 
 # Create your views here.
 class MonthlyBudgetViewSet(viewsets.ModelViewSet):
@@ -24,30 +24,42 @@ class MonthlyBudgetViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+# class MovieBudgetDetailViewSet(viewsets.ModelViewSet):
+#     serializer_class = MonthlyBudgetSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+#
+#     def get_queryset(self):
+#         user = self.request.user
+#         return MonthlyBudget.objects.filter(user=user)
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
+    # queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return Category.objects.filter(user=self.request.user)
+        if self.request.user.is_authenticated:
+            return Category.objects.filter(user=self.request.user)
+        else:
+            return Category.objects.none()
     #
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
 
 class ExpenseViewSet(viewsets.ModelViewSet):
-    queryset = Expense.objects.all()
+    # queryset = Expense.objects.all()
     serializer_class = ExpensesSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return Expense.objects.filter(user=self.request.user).order_by('-date')
+        if self.request.user.is_authenticated:
+            return Expense.objects.filter(user=self.request.user)
+        else:
+            return Expense.objects.none()
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
@@ -63,5 +75,3 @@ def monthly_summary(request, year, month):
     serializer = MonthlySummarySerializer(summary_data)
 
     return Response(serializer.data)
-
-

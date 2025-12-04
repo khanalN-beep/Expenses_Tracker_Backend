@@ -6,7 +6,7 @@ from expensetracker import settings
 
 # Create your models here.
 class MonthlyBudget(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     month = models.IntegerField()
     year = models.IntegerField()
     monthly_budget = models.DecimalField(max_digits=12, decimal_places=2)
@@ -20,7 +20,7 @@ class MonthlyBudget(models.Model):
 
 
 class Category(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -34,7 +34,7 @@ class Expense(models.Model):
         ('bank', 'Bank / Bank Card'),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     budget = models.ForeignKey(MonthlyBudget, on_delete=models.SET_NULL, null=True ,related_name='expenses')
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
 
@@ -57,7 +57,7 @@ class Income(models.Model):
         ('freelance', 'Freelance'),
         ('business', 'Business'),
     ]
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField()

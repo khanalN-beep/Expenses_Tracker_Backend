@@ -9,8 +9,10 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+from datetime import timedelta
 from pathlib import Path
+
+from django.conf import settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,11 +27,11 @@ SECRET_KEY = 'django-insecure-cxhy!89is+4p_xyf03v#u$+ev*i#6dwz1btm)sk_l&f4w^7b4z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
-LOCAL_APPS = ['expenses']
+LOCAL_APPS = ['expenses', 'accounts']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -39,10 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'drf_yasg',
-] + LOCAL_APPS
+    "corsheaders",
+]+ LOCAL_APPS
 
 MIDDLEWARE = [
+"corsheaders.middleware.CorsMiddleware",
+'django.middleware.security.SecurityMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -50,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'expensetracker.urls'
@@ -78,12 +85,11 @@ WSGI_APPLICATION = 'expensetracker.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'Expense_Tracker',
-        'USER': 'Expense_Admin',
+        'NAME': 'Expenses_DB',
+        'USER': 'userLogin',
         'PASSWORD': '12345',
         'HOST': 'localhost',
         'PORT': '5432',
-
     }
 }
 
@@ -131,12 +137,36 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
-        "rest_framework.authentication.TokenAuthentication",
-        # or JWT:
-        # "rest_framework_simplejwt.authentication.JWTAuthentication",
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-    ],
+    # "DEFAULT_PERMISSION_CLASSES": [
+    #     # "rest_framework.permissions.IsAuthenticated",
+    #     "rest_framework.permissions.AllowAny",
+    # ],
 }
+
+SIMPLE_JWT ={
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    # 'ROTATE_REFRESH_TOKENS': False,
+    # 'BLACKLIST_AFTER_ROTATION': True,
+    # 'UPDATE_LAST_LOGIN': False,
+    # 'ALGORITHM': 'HS256',
+    # 'SIGNING_KEY': settings.SECRET_KEY,
+}
+AUTH_USER_MODEL = 'accounts.User'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'authorization',
+    'x-csrftoken',
+]

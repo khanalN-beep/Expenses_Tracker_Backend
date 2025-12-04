@@ -36,7 +36,10 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api-auth', include('rest_framework.urls')),
     path('expenses/',include('expenses.api.v1.urls') ),
+
+    path('accounts/', include('accounts.api.v1.urls')),
 
 
 # Swagger UI

@@ -1,5 +1,6 @@
 from django.db.models import Sum
 from expenses.models import Expense
+import calendar
 
 
 def calculate_monthly_summary(user, budget):
@@ -21,12 +22,12 @@ def calculate_monthly_summary(user, budget):
     # category breakdown
     category_data = (
         Expense.objects.filter(user=user, budget=budget)
-        .values("category_name")
+        .values("category__name")
         .annotate(total=Sum("amount"))
     )
 
     category_breakdown = {
-        item["category_name"] or "Unknown": item["total"]
+        item["category__name"] or "Unknown": item["total"]
         for item in category_data
     }
 
@@ -49,7 +50,7 @@ def calculate_monthly_summary(user, budget):
         {
             "title": biggest.title,
             "amount": biggest.amount,
-            "category": biggest.category_name.name if biggest.category_name else "Unknown",
+            "category": biggest.category.name if biggest.category else "Unknown",
             "date": biggest.date,
         }
         if biggest
@@ -57,7 +58,8 @@ def calculate_monthly_summary(user, budget):
     )
 
     return {
-        "month": budget.month,
+        "month": calendar.month_name[budget.month],
+        # "month_name": calendar.month_name[budget.month],
         "year": budget.year,
         "monthly_budget": budget.monthly_budget,
         "total_spent": total_spent,
